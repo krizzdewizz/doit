@@ -8,16 +8,16 @@ import { Observable, Subscriber, Subject } from 'rxjs/Rx';
 import { Task, TaskLog } from '../model';
 
 const taskEventSource = new Subject<Task>();
-export const taskChanged$ = taskEventSource.asObservable();
 function changeTask(task: Task) {
     taskEventSource.next(task);
 }
+export const taskChanged$ = taskEventSource.asObservable();
 
 const taskLogSource = new Subject<TaskLog>();
-export const taskLogChanged$ = taskLogSource.asObservable();
 function changeTaskLog(taskLog: TaskLog) {
     taskLogSource.next(taskLog);
 }
+export const taskLogChanged$ = taskLogSource.asObservable();
 
 class ToTaskLogChanged extends stream.Writable {
 
@@ -33,10 +33,6 @@ class ToTaskLogChanged extends stream.Writable {
 
 export class Taskk {
 
-    get running(): boolean {
-        return Boolean(this.process);
-    }
-
     private process: child_process.ChildProcess;
 
     constructor(public task: Task) {
@@ -45,7 +41,7 @@ export class Taskk {
     startStop() {
         const task = this.task;
         if (this.process) {
-            changeTaskLog({ taskId: task.id, chunk: `task '${task.title}' killed by user.\n` });
+            changeTaskLog({ taskId: task.id, chunk: `task '${task.title}' killed by user.` });
             this.process.kill();
             return;
         }
@@ -56,12 +52,12 @@ export class Taskk {
         p.on('exit', () => {
             this.process = undefined;
             changeTask(this.toJSON());
-            changeTaskLog({ taskId: task.id, chunk: `task '${task.title}' exited.\n` });
+            changeTaskLog({ taskId: task.id, chunk: `task '${task.title}' exited.` });
         });
         p.on('error', err => {
             this.process = undefined;
             changeTask(this.toJSON());
-            changeTaskLog({ taskId: task.id, chunk: `task '${task.title}' has reported an error: ${err}.\n` });
+            changeTaskLog({ taskId: task.id, chunk: `task '${task.title}' has reported an error: ${err}.` });
         });
         this.process = p;
         changeTask(this.toJSON());
@@ -69,7 +65,7 @@ export class Taskk {
     }
 
     toJSON(): Task {
-        return { ...this.task, running: this.running };
+        return { ...this.task, running: Boolean(this.process) };
     }
 }
 

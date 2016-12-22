@@ -21,7 +21,7 @@ interface TaskLogData {
 })
 export class AppComponent implements OnInit, OnDestroy {
 
-    tasks: Task[]; //
+    tasks: Task[];
     selection: Task;
     private logPaused: boolean;
     private subscriptions: any[];
@@ -83,10 +83,6 @@ export class AppComponent implements OnInit, OnDestroy {
     commandAndArgs(task: Task): string {
         const args = task.args.join(' ');
         return `${task.command} ${args}`;
-    }
-
-    status(task: Task): string {
-        return task.running ? 'running' : 'stopped';
     }
 
     startStopClass(task: Task) {
