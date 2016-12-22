@@ -7,16 +7,16 @@ import { Observable, Subscriber, Subject } from 'rxjs/Rx';
 
 import { Task, TaskLog } from '../model';
 
-const _taskEventSource = new Subject<Task>();
-export const taskChanged$ = _taskEventSource.asObservable();
+const taskEventSource = new Subject<Task>();
+export const taskChanged$ = taskEventSource.asObservable();
 function changeTask(task: Task) {
-    _taskEventSource.next(task);
+    taskEventSource.next(task);
 }
 
-const _taskLogSource = new Subject<TaskLog>();
-export const taskLogChanged$ = _taskLogSource.asObservable();
+const taskLogSource = new Subject<TaskLog>();
+export const taskLogChanged$ = taskLogSource.asObservable();
 function changeTaskLog(taskLog: TaskLog) {
-    _taskLogSource.next(taskLog);
+    taskLogSource.next(taskLog);
 }
 
 class ToTaskLogChanged extends stream.Writable {
@@ -26,58 +26,50 @@ class ToTaskLogChanged extends stream.Writable {
     }
 
     _write(chunk, _encoding, done) {
-        const qqq = String(chunk);
-        changeTaskLog({ taskId: this.taskId, stderr: this.stderr, chunk: qqq });
+        changeTaskLog({ taskId: this.taskId, stderr: this.stderr, chunk: String(chunk) });
         done();
     }
 }
 
-export class Taskk implements Task {
-    id: number;
-    title: string;
-    command: string;
-    args: string[];
-    cwd: string;
+export class Taskk {
+
     get running(): boolean {
         return Boolean(this.process);
     }
 
     private process: child_process.ChildProcess;
 
-    constructor(src: {}) {
-        Object.keys(src).forEach(key => this[key] = src[key]);
+    constructor(public task: Task) {
     }
 
     startStop() {
-        const self = this;
+        const task = this.task;
         if (this.process) {
-            changeTaskLog({ taskId: this.id, chunk: `task '${self.title}' killed by user.\n` });
+            changeTaskLog({ taskId: task.id, chunk: `task '${task.title}' killed by user.\n` });
             this.process.kill();
             return;
         }
-        // const p = child_process.spawn('cmd.exe', ['/k', this.command, ...this.args], { cwd: this.cwd });
-        const p = child_process.spawn(this.command, this.args, { cwd: this.cwd });
+        const p = child_process.spawn(task.command, task.args, { cwd: task.cwd });
         p.stdout.setEncoding('utf8');
-        p.stdout.pipe(new ToTaskLogChanged(this.id, false));
-        p.stderr.pipe(new ToTaskLogChanged(this.id, true));
+        p.stdout.pipe(new ToTaskLogChanged(task.id, false));
+        p.stderr.pipe(new ToTaskLogChanged(task.id, true));
         p.on('exit', () => {
             this.process = undefined;
             changeTask(this.toJSON());
-            changeTaskLog({ taskId: this.id, chunk: `task '${self.title}' exited.\n` });
+            changeTaskLog({ taskId: task.id, chunk: `task '${task.title}' exited.\n` });
         });
         p.on('error', err => {
             this.process = undefined;
             changeTask(this.toJSON());
-            changeTaskLog({ taskId: this.id, chunk: `task '${self.title}' has reported an error: ${err}.\n` });
+            changeTaskLog({ taskId: task.id, chunk: `task '${task.title}' has reported an error: ${err}.\n` });
         });
         this.process = p;
         changeTask(this.toJSON());
-        changeTaskLog({ taskId: this.id, chunk: `task '${self.title}' started.\n` });
+        changeTaskLog({ taskId: task.id, chunk: `task '${task.title}' started.\n` });
     }
 
     toJSON(): Task {
-        const t: Task = { id: this.id, title: this.title, command: this.command, args: this.args, cwd: this.cwd, running: this.running };
-        return t;
+        return { ...this.task, running: this.running };
     }
 }
 
