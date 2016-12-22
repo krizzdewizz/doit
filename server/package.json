@@ -1,18 +1,24 @@
 {
-  "name": "doit",
-  "version": "1.0.0",
-  "main": "index.js",
+  "name": "doit-server",
+  "version": "0.1.0",
+  "main": "app/main.js",
   "license": "MIT",
   "dependencies": {
-    "@types/express": "^4.0.34",
-    "@types/jquery": "^2.0.34",
-    "@types/socket.io": "^1.4.27",
-    "body-parser": "^1.15.2",
-    "express": "^4.14.0",
-    "rxjs": "^5.0.1",
-    "socket.io": "^1.7.2",
-    "tslint": "^4.1.1",
-    "tslint-microsoft-contrib": "^4.0.0",
-    "typescript": "^2.1.4"
+    "@types/es6-shim": "*",
+    "@types/express": "*",
+    "@types/jquery": "*",
+    "@types/socket.io": "*",
+    "body-parser": "*",
+    "express": "*",
+    "grunt": "*",
+    "grunt-contrib-clean": "*",
+    "grunt-ts": "*",
+    "grunt-tslint": "*",
+    "load-grunt-tasks": "*",
+    "rxjs": "*",
+    "socket.io": "*",
+    "tslint": "*",
+    "tslint-microsoft-contrib": "*",
+    "typescript": "*"
   }
 }

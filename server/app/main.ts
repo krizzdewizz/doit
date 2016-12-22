@@ -47,5 +47,6 @@ const io = socketIo.listen(server);
 io.sockets.on('connection', taskSocket(io));
 
 server.listen(PORT, () => {
-    console.log(`doit task server listening on port ${PORT}...`);
+    const log = console.log;
+    log(`doit task server listening on port ${PORT}...`);
 });

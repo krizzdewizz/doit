@@ -1,4 +1,4 @@
-import { Event, EventType, TaskActionEvent, AllTasksEvent, TaskEvent, TaskLogEvent, DOIT } from '../model';
+import { Event, EventType, TaskActionEvent, AllTasksEvent, TaskEvent, TaskLogEvent, DOIT } from './model';
 import * as task from './task';
 
 export function taskSocket(io: SocketIO.Server) {

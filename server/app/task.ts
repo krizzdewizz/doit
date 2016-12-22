@@ -5,7 +5,7 @@ import * as stream from 'stream';
 
 import { Observable, Subscriber, Subject } from 'rxjs/Rx';
 
-import { Task, TaskLog } from '../model';
+import { Task, TaskLog } from './model';
 
 const taskEventSource = new Subject<Task>();
 function changeTask(task: Task) {
