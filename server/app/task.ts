@@ -27,7 +27,6 @@ class ToTaskLogChanged extends stream.Writable {
 
     _write(chunk, _encoding, done) {
         const qqq = String(chunk);
-        console.log('qqq', qqq)
         changeTaskLog({ taskId: this.taskId, stderr: this.stderr, chunk: qqq });
         done();
     }
