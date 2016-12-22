@@ -1,0 +1,122 @@
+import { Component, OnInit, OnDestroy } from '@angular/core';
+
+import { TaskService } from './task/task.service';
+import { Task, TaskLog } from './model';
+
+const MAX_LINES = 30;
+
+interface LogData {
+    lines: string[];
+    data: string;
+}
+
+interface TaskLogData {
+    [taskId: number]: LogData;
+}
+
+@Component({
+    moduleId: __moduleName,
+    selector: 'doit-app',
+    templateUrl: 'app.component.html',
+})
+export class AppComponent implements OnInit, OnDestroy {
+
+    tasks: Task[]; //
+    selection: Task;
+    private logPaused: boolean;
+    private subscriptions: any[];
+
+    taskLogData: TaskLogData = {};
+
+    constructor(private taskService: TaskService) {
+
+    }
+
+    ngOnInit() {
+        this.subscriptions = [
+            this.taskService.allTasks.subscribe(tasks => {
+                this.tasks = tasks;
+                this.selection = tasks[0];
+            }),
+
+            this.taskService.task.subscribe((task: Task) => {
+                const newTasks = [];
+                this.tasks.forEach(it => {
+                    if (it.id === task.id) {
+                        newTasks.push(task);
+                        if (this.selection && this.selection.id === task.id) {
+                            this.selection = task;
+                        }
+                    } else {
+                        newTasks.push(it);
+                    }
+                });
+
+                this.tasks = newTasks;
+            }),
+
+            this.taskService.taskLog.subscribe((taskLog: TaskLog) => {
+                let logData = this.taskLogData[taskLog.taskId];
+                if (!logData) {
+                    logData = this.taskLogData[taskLog.taskId] = { lines: [], data: '' };
+                }
+                const chunkLines = taskLog.chunk.split('\n').filter(it => Boolean(it));
+
+                let newLines = [...logData.lines, ...chunkLines];
+                if (newLines.length > MAX_LINES) {
+                    newLines = newLines.slice(newLines.length - MAX_LINES, newLines.length);
+                }
+
+                logData.lines = newLines;
+                this.updateLogData(taskLog.taskId);
+            })
+
+        ];
+        this.taskService.init();
+    }
+
+    ngOnDestroy() {
+        this.taskService.destroy();
+        this.subscriptions.forEach(it => it.unsubscribe());
+    }
+
+    commandAndArgs(task: Task): string {
+        const args = task.args.join(' ');
+        return `${task.command} ${args}`;
+    }
+
+    status(task: Task): string {
+        return task.running ? 'running' : 'stopped';
+    }
+
+    startStopClass(task: Task) {
+        return { button: true, glyphicon: true, 'glyphicon-stop': task.running, 'glyphicon-play': !task.running };
+    }
+
+    startStop(task: Task) {
+        if (!task.running) {
+            this.taskLogData[task.id] = undefined;
+        }
+        this.taskService.startStop(task);
+        return false;
+    }
+
+    pauseLog() {
+        if (this.logPaused) {
+            this.logPaused = false;
+            this.updateLogData(this.selection.id);
+        } else {
+            this.logPaused = true;
+        }
+    }
+
+    updateLogData(taskId: number) {
+        if (this.logPaused) {
+            return;
+        }
+        const logData = this.taskLogData[taskId];
+        if (logData) {
+            logData.data = logData.lines.join('\n');
+        }
+    }
+}

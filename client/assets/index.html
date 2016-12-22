@@ -1,0 +1,51 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+
+	<base href="/">
+
+	<title>doit</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+	<!-- build:css(.tmp) /assets/styles/main.css -->
+	<link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="assets/styles/main.css">
+	<!-- endbuild -->
+
+</head>
+
+
+<body>
+
+	<doit-app></doit-app>
+
+	<!-- build:js({.,.tmp}) /app/vendor.js -->
+	<script src="../node_modules/jquery/dist/jquery.js"></script>
+	<script src="../node_modules/bootstrap/dist/js/bootstrap.js"></script>
+	<script src="../node_modules/core-js/client/shim.min.js"></script>
+	<script src="../node_modules/reflect-metadata/Reflect.js"></script>
+	<script src="../node_modules/zone.js/dist/zone.min.js"></script>
+	<script src="../node_modules/systemjs/dist/system.js"></script>
+	<script src="../node_modules/socket.io-client/dist/socket.io.js"></script>
+	<!-- endbuild -->
+
+	<!-- PROD_MODE_SCRIPT_INSERTION_POINT -->
+
+	<!-- build:js(.tmp) /app/bundle.js -->
+	<!-- speed up load by using pre-bundled vendor scripts -->
+	<script src="app/vendor.dev.js"></script>
+	<script src="app/bundle.js"></script>
+	<script src="app/system.config.js" "></script>
+	<!-- endbuild -->
+
+	<script>
+		var cfg = window.SYSTEM_CONFIG('');
+		System.config(cfg);
+		System.import('app').then(null, console.error.bind(console));
+	</script>
+
+</body>
+
+</html>

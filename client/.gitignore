@@ -1,0 +1,6 @@
+node_modules/*
+.tscache
+.dist
+.tmp
+app/**/*.js
+app/**/*.js.map
