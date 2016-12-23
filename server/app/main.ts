@@ -4,6 +4,9 @@ import * as http from 'http';
 import * as socketIo from 'socket.io';
 
 import { taskSocket } from './task-ws';
+import { setupWatcher } from './task';
+
+setupWatcher();
 
 const bodyParser = require('body-parser');
 
