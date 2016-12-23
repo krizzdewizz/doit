@@ -1,2 +1,2 @@
-Run, "node" "app\main",, Hide
+Run, "node" "app\main" "-p",, Hide
 #singleinstance force

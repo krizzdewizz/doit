@@ -119,25 +119,15 @@ module.exports = function (grunt) {
                     {
                         expand: true,
                         cwd: '.tmp',
-                        src: ['assets/i18n/**/*', 'assets/index.html'],
+                        src: ['assets/index.html'],
                         dest: '.dist',
                     },
                     {
                         expand: true,
-                        cwd: 'node_modules/bison-ui/assets',
-                        src: ['fonts/**', 'images/**', 'docs/**'],
+                        cwd: 'node_modules/bootstrap/dist',
+                        src: ['fonts/**'],
                         dest: '.dist/assets',
-                    },
-                    {
-                        expand: true,
-                        cwd: 'app',
-                        src: ['**/*.ts', '**/*.html'],
-                        dest: '.dist/app',
-                    },
-                    {
-                        src: 'assets/index.html',
-                        dest: '.dist/assets/index-dev.html',
-                    },
+                    }
                 ]
             }
         },
@@ -152,7 +142,7 @@ module.exports = function (grunt) {
 
         watch: {
             sass: {
-                files: ['assets/sass/**/*.*css', 'node_modules/bison-ui/assets/sass/**/*.*css'],
+                files: ['assets/sass/**/*.*css'],
                 tasks: ['compileSass']
             },
         },

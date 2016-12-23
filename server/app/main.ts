@@ -11,7 +11,7 @@ setupWatcher();
 const bodyParser = require('body-parser');
 
 const PORT = 8090;
-const prod = process.env.NODE_ENV === 'production';
+const prod = Boolean(process.argv.find(it => it === '-p'));
 
 const CLIENT_ROOT = '../../client' + (prod ? '/.dist' : '');
 
@@ -36,10 +36,8 @@ const app = express()
 
     .use('/node_modules', staticc(`node_modules`))
     .use('/app', staticc('app'))
-    .use('/assets/styles', staticc('assets/styles'))
-    .use('/assets/scripts', staticc('assets/scripts'))
+    .use('/assets', staticc('assets'))
     .use('/index.html', staticc('assets/index.html'))
-    .use('/assets/images', staticc('assets/images'))
     .all('/*', html5)
     ;
 
@@ -51,5 +49,5 @@ io.sockets.on('connection', taskSocket(io));
 
 server.listen(PORT, () => {
     const log = console.log;
-    log(`doit task server listening on port ${PORT}...`);
+    log(`'doit' task server (${prod ? 'prod' : 'debug'}) listening on port ${PORT}...`);
 });
