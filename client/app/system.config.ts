@@ -2,7 +2,7 @@
 
     global.SYSTEM_CONFIG = () => {
 
-        const config = {
+        const config: any = {
             baseURL: '/',
             map: {
                 app: 'app',

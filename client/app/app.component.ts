@@ -34,13 +34,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.subscriptions = [
-            this.taskService.allTasks.subscribe(tasks => {
+            this.taskService.allTasks.subscribe((tasks: Task[]) => {
                 this.tasks = tasks;
                 this.selection = tasks[0];
             }),
 
             this.taskService.task.subscribe((task: Task) => {
-                const newTasks = [];
+                const newTasks: Task[] = [];
                 this.tasks.forEach(it => {
                     if (it.id === task.id) {
                         newTasks.push(task);

@@ -11,12 +11,12 @@
         "skipDefaultLibCheck": true,
         "skipLibCheck": true,
         "noUnusedParameters": true,
-        "noUnusedLocals": true
+        "noUnusedLocals": true,
+        "noImplicitAny": true
     },
     "exclude": [
         "node_modules",
-        "server",
-        ".tmp",
+         ".tmp",
 		".dist"
     ]
 }
