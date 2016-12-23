@@ -10,7 +10,7 @@ setupWatcher();
 
 const bodyParser = require('body-parser');
 
-const PORT = 8081;
+const PORT = 8090;
 const prod = process.env.NODE_ENV === 'production';
 
 const CLIENT_ROOT = '../../client' + (prod ? '/.dist' : '');
