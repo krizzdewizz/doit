@@ -6,6 +6,11 @@ import { Observable, Subscriber, Subject } from 'rxjs/Rx';
 
 import { Task, TaskLog } from './model';
 
+function replaceVars(s: string): string {
+    const npmLocal = process.env.NPM_LOCAL;
+    return npmLocal ? s.replace(/\$NPM_LOCAL/g, npmLocal) : s;
+}
+
 const allTasksSource = new Subject<TaskMap>();
 export const allTasksChanged$ = allTasksSource.asObservable();
 
@@ -41,7 +46,7 @@ export class Taskk {
             this.process.kill();
             return;
         }
-        const p = child_process.spawn(task.command, task.args, { cwd: task.cwd });
+        const p = child_process.spawn(replaceVars(task.command), task.args.map(it => replaceVars(it)), { cwd: replaceVars(task.cwd) });
         p.stdout.setEncoding('utf8');
         p.stdout.pipe(new ToTaskLogChanged(task.id, false));
         p.stderr.pipe(new ToTaskLogChanged(task.id, true));

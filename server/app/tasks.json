@@ -11,18 +11,18 @@
         "title": "bison-ui - grunt build",
         "command": "node",
         "args": [
-            "C:\\Users\\gigi\\AppData\\Roaming\\npm\\node_modules\\grunt\\bin\\grunt",
+            "$NPM_LOCAL\\grunt-cli\\bin\\grunt",
             "build"
         ],
-        "cwd": "D:\\data\\meadows\\bison-ui"
+        "cwd": "c:\\workspace\\meadows\\bison-ui"
     },
     {
         "title": "lean-client - grunt watch:sass",
         "command": "node",
         "args": [
-            "C:\\Users\\gigi\\AppData\\Roaming\\npm\\node_modules\\grunt\\bin\\grunt",
+            "$NPM_LOCAL\\grunt-cli\\bin\\grunt",
             "watch:sass"
         ],
-        "cwd": "D:\\data\\meadows\\lean-client\\scripts"
+        "cwd": "C:\\workspace\\infra.base.git\\lean-client\\scripts"
     }
 ]
