@@ -97,6 +97,7 @@ export class AppComponent implements OnInit, OnDestroy {
     startStop(task: Task) {
         if (!task.running) {
             this.taskLogData[task.id] = undefined;
+            this.logPaused = false;
         }
         this.taskService.startStop(task);
         return false;
