@@ -30,6 +30,17 @@ class ToTaskLogChanged extends stream.Writable {
 
 export class Taskk {
 
+    static create(id: number, def: Task, vars: Varss): Taskk {
+        return new Taskk({
+            id,
+            title: vars.replace(def.title),
+            command: vars.replace(def.command),
+            args: (def.args || []).map(it => vars.replace(it)),
+            cwd: vars.replace(def.cwd),
+            running: false
+        });
+    }
+
     private process: child_process.ChildProcess;
 
     constructor(public task: Task) {
@@ -110,14 +121,7 @@ export function load(): Observable<Taskk[]> {
             try {
                 const doit: DoIt = JSON.parse(String(content));
                 const vars = new Varss(doit.vars);
-                ALL_TASKS = doit.tasks.map((def, index) => new Taskk({
-                    id: index,
-                    title: vars.replace(def.title),
-                    command: vars.replace(def.command),
-                    args: (def.args || []).map(it => vars.replace(it)),
-                    cwd: vars.replace(def.cwd),
-                    running: false
-                }));
+                ALL_TASKS = doit.tasks.map((def, index) => Taskk.create(index, def, vars));
                 subscriber.next(ALL_TASKS);
             } catch (err) {
                 console.error(`Error while parsing '${TASKS_FILE}': ${err}`);
