@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef } from '@angular/core';
 
 import { TaskService } from './task/task.service';
 import { Task, TaskLog } from './model';
@@ -33,7 +33,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     taskLogData: TaskLogData = {};
 
-    constructor(private taskService: TaskService) {
+    constructor(private elRef: ElementRef, private taskService: TaskService) {
 
     }
 
@@ -118,6 +118,7 @@ export class AppComponent implements OnInit, OnDestroy {
         const logData = this.taskLogData[taskId];
         if (logData) {
             logData.linesVisible = logData.lines;
+            setTimeout(() => $('.doit-log', this.elRef.nativeElement).scrollTop(10000), 0);
         }
     }
 }
