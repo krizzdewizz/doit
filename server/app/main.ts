@@ -20,8 +20,6 @@ function staticc(path: string) {
 }
 
 function html5(_req: express.Request, res: express.Response) {
-    // console.log('req.url=', req.url);
-    // res.redirect('/index.html'); ->> does not work as expected
     fs.createReadStream(`${__dirname}/${CLIENT_ROOT}/assets/index.html`).pipe(res);
 }
 
@@ -30,10 +28,6 @@ express.static.mime.define({ 'application/x-font-ttf': ['ttf'] });
 
 const app = express()
     .use(bodyParser.json())
-
-    // .get('/products/search', productSearch)
-    // .get('/code', code)
-
     .use('/node_modules', staticc(`node_modules`))
     .use('/app', staticc('app'))
     .use('/assets', staticc('assets'))

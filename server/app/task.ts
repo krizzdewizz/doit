@@ -4,14 +4,10 @@ import * as child_process from 'child_process';
 import * as stream from 'stream';
 import { Observable, Subscriber, Subject } from 'rxjs/Rx';
 
-import { Task, TaskLog } from './model';
+import { Task, DoIt, TaskLog } from './model';
+import { Varss } from './vars';
 
-function replaceVars(s: string): string {
-    const npmLocal = process.env.NPM_LOCAL;
-    return npmLocal ? s.replace(/\%NPM_LOCAL\%/g, npmLocal) : s;
-}
-
-const allTasksSource = new Subject<TaskMap>();
+const allTasksSource = new Subject<Taskk[]>();
 export const allTasksChanged$ = allTasksSource.asObservable();
 
 const taskSource = new Subject<Task>();
@@ -46,7 +42,7 @@ export class Taskk {
             this.process.kill();
             return;
         }
-        const p = child_process.spawn(replaceVars(task.command), task.args.map(it => replaceVars(it)), { cwd: replaceVars(task.cwd) });
+        const p = child_process.spawn(task.command, task.args, { cwd: task.cwd });
         p.stdout.setEncoding('utf8');
         p.stdout.pipe(new ToTaskLogChanged(task.id, false));
         p.stderr.pipe(new ToTaskLogChanged(task.id, true));
@@ -74,16 +70,12 @@ export class Taskk {
     }
 }
 
-export interface TaskMap {
-    [id: number]: Taskk;
-}
-
 const TASKS_FILE = path.join(__dirname, 'tasks.json');
 
-let ALL_TASKS: TaskMap;
+let ALL_TASKS: Taskk[];
 
 export function get(taskId: number): Taskk {
-    return ALL_TASKS[taskId];
+    return ALL_TASKS.find(it => it.task.id === taskId);
 }
 
 export function setupWatcher() {
@@ -94,8 +86,7 @@ export function setupWatcher() {
             if (!lastMTime || (mtime - lastMTime) > 100) {
                 lastMTime = mtime;
                 if (ALL_TASKS) {
-                    Object.keys(ALL_TASKS)
-                        .map(k => ALL_TASKS[k])
+                    ALL_TASKS
                         .filter(task => task.running)
                         .forEach(task => task.startStop());
                     ALL_TASKS = undefined;
@@ -106,20 +97,27 @@ export function setupWatcher() {
     });
 }
 
-export function load(): Observable<TaskMap> {
+export function load(): Observable<Taskk[]> {
     if (ALL_TASKS) {
         return Observable.of(ALL_TASKS);
     }
-    return Observable.create((subscriber: Subscriber<TaskMap>) => {
-        fs.readFile(TASKS_FILE, (err, data) => {
+    return Observable.create((subscriber: Subscriber<Taskk[]>) => {
+        fs.readFile(TASKS_FILE, (err, content) => {
             if (err) {
                 subscriber.error(err);
                 return;
             }
             try {
-                const defs: Task[] = JSON.parse(String(data));
-                ALL_TASKS = {};
-                defs.forEach((def, index) => ALL_TASKS[index] = new Taskk({ ...def, id: index }));
+                const doit: DoIt = JSON.parse(String(content));
+                const vars = new Varss(doit.vars);
+                ALL_TASKS = doit.tasks.map((def, index) => new Taskk({
+                    id: index,
+                    title: vars.replace(def.title),
+                    command: vars.replace(def.command),
+                    args: (def.args || []).map(it => vars.replace(it)),
+                    cwd: vars.replace(def.cwd),
+                    running: false
+                }));
                 subscriber.next(ALL_TASKS);
             } catch (err) {
                 console.error(`Error while parsing '${TASKS_FILE}': ${err}`);

@@ -1,3 +1,12 @@
+export interface Vars {
+    [name: string]: string;
+}
+
+export interface DoIt {
+    tasks: Task[];
+    vars: Vars;
+}
+
 export interface Task {
     id: number;
     title: string;

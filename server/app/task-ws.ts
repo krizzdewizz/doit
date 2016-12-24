@@ -1,8 +1,8 @@
 import { Event, Task, TaskActionStartStopEvent } from './model';
 import * as task from './task';
 
-function mapTasks(taskMap: task.TaskMap): Task[] {
-    return Object.keys(taskMap).map(k => taskMap[k].toJSON());
+function mapTasks(tasks: task.Taskk[]): Task[] {
+    return tasks.map(it => it.toJSON());
 }
 
 export function taskSocket(io: SocketIO.Server) {
@@ -12,7 +12,7 @@ export function taskSocket(io: SocketIO.Server) {
     }
 
     task.taskChanged$.subscribe(task => broadcast(Event.TASK, { task }));
-    task.allTasksChanged$.subscribe(taskMap => broadcast(Event.ALL_TASKS, { tasks: mapTasks(taskMap) }));
+    task.allTasksChanged$.subscribe(tasks => broadcast(Event.ALL_TASKS, { tasks: mapTasks(tasks) }));
     task.taskLogChanged$.subscribe(taskLog => broadcast(Event.TASK_LOG, { taskLog }));
 
     return socket => {
