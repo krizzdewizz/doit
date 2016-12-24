@@ -5,7 +5,7 @@ function mapTasks(tasks: task.Taskk[]): Task[] {
     return tasks.map(it => it.toJSON());
 }
 
-export function taskSocket(io: SocketIO.Server) {
+export function taskSocket(io: SocketIO.Server): (socket: SocketIO.Socket) => void {
 
     function broadcast(e: Event, obj: any) {
         io.sockets.emit(Event[e], obj);
@@ -15,7 +15,7 @@ export function taskSocket(io: SocketIO.Server) {
     task.allTasksChanged$.subscribe(tasks => broadcast(Event.ALL_TASKS, { tasks: mapTasks(tasks) }));
     task.taskLogChanged$.subscribe(taskLog => broadcast(Event.TASK_LOG, { taskLog }));
 
-    return socket => {
+    return (socket: SocketIO.Socket) => {
         socket.on(Event[Event.TASK_ACTION_START_STOP], (e: TaskActionStartStopEvent) => {
             const t = task.get(e.taskId);
             if (t) {
@@ -23,5 +23,6 @@ export function taskSocket(io: SocketIO.Server) {
             }
         });
         task.load().subscribe(taskMap => socket.emit(Event[Event.ALL_TASKS], { tasks: mapTasks(taskMap) }));
+        socket.emit(Event[Event.CONFIG], { config: { path: task.TASKS_FILE } });
     };
 }

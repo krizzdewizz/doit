@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy, ElementRef } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 
 import { TaskService } from './task/task.service';
-import { Task, TaskLog } from './model';
+import { Task, TaskLog, Config } from './model';
 
 const MAX_LINES = 30;
 
@@ -28,12 +29,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
     tasks: Task[];
     selection: Task;
+    config: Config;
     private logPaused: boolean;
     private subscriptions: any[];
 
     taskLogData: TaskLogData = {};
 
-    constructor(private elRef: ElementRef, private taskService: TaskService) {
+    constructor(private elRef: ElementRef, private taskService: TaskService, private sanitizer: DomSanitizer) {
 
     }
 
@@ -74,7 +76,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
                 logData.lines = newLines;
                 this.updateLogData(taskLog.taskId);
-            })
+            }),
+
+            this.taskService.config.subscribe((config: Config) => this.config = config)
 
         ];
         this.taskService.init();
@@ -121,5 +125,12 @@ export class AppComponent implements OnInit, OnDestroy {
             logData.linesVisible = logData.lines;
             setTimeout(() => $('.doit-log', this.elRef.nativeElement).scrollTop(10000), 0);
         }
+    }
+
+    get configFile() {
+        if (!this.config) {
+            return undefined;
+        }
+        return this.sanitizer.bypassSecurityTrustUrl(`doit-open:${this.config.path}`);
     }
 }

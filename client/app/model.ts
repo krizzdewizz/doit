@@ -22,8 +22,12 @@ export interface TaskLog {
     stderr?: boolean; // if true is stderr, else stdout
 }
 
+export interface Config {
+    path: string;
+}
+
 export enum Event {
-    TASK, ALL_TASKS, TASK_LOG, // outgoing
+    TASK, ALL_TASKS, TASK_LOG, CONFIG, // outgoing
     TASK_ACTION_START_STOP // incoming
 }
 
@@ -43,3 +47,6 @@ export interface TaskActionStartStopEvent {
     taskId: number;
 }
 
+export interface ConfigEvent {
+    config: Config;
+}

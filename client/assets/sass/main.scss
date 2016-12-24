@@ -27,11 +27,11 @@ body {
     overflow-y: auto;
     transition: all 0.5s ease;
     h2 {
+      a {
+          color: black;
+      }
       padding-top: 20px;
       padding-left: 20px;
-    }
-    ul {
-      padding-top: 100px;
     }
 }
 
@@ -88,7 +88,7 @@ body {
 
 .sidebar-nav {
     position: absolute;
-    top: 0;
+    top: 120px;
     width: $sidebar-width;
     margin: 0;
     padding: 0;

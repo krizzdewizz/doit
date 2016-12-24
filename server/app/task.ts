@@ -30,13 +30,13 @@ class ToTaskLogChanged extends stream.Writable {
 
 export class Taskk {
 
-    static create(id: number, def: Task, vars: Varss): Taskk {
+    static create(id: number, task: Task, vars: Varss): Taskk {
         return new Taskk({
             id,
-            title: vars.replace(def.title),
-            command: vars.replace(def.command),
-            args: (def.args || []).map(it => vars.replace(it)),
-            cwd: vars.replace(def.cwd),
+            title: vars.replace(task.title),
+            command: vars.replace(task.command),
+            args: (task.args || []).map(it => vars.replace(it)),
+            cwd: vars.replace(task.cwd),
             running: false
         });
     }
@@ -81,7 +81,7 @@ export class Taskk {
     }
 }
 
-const TASKS_FILE = path.join(__dirname, 'tasks.json');
+export const TASKS_FILE = path.join(__dirname, 'tasks.json');
 
 let ALL_TASKS: Taskk[];
 
@@ -121,7 +121,7 @@ export function load(): Observable<Taskk[]> {
             try {
                 const doit: DoIt = JSON.parse(String(content));
                 const vars = new Varss(doit.vars);
-                ALL_TASKS = doit.tasks.map((def, index) => Taskk.create(index, def, vars));
+                ALL_TASKS = doit.tasks.map((task, index) => Taskk.create(index, task, vars));
                 subscriber.next(ALL_TASKS);
             } catch (err) {
                 console.error(`Error while parsing '${TASKS_FILE}': ${err}`);
