@@ -5,9 +5,14 @@ import { Task, TaskLog } from './model';
 
 const MAX_LINES = 30;
 
+interface LogLine {
+    line: string;
+    err: boolean;
+}
+
 interface LogData {
-    lines: string[];
-    data: string;
+    lines: LogLine[];
+    linesVisible: LogLine[];
 }
 
 interface TaskLogData {
@@ -58,9 +63,9 @@ export class AppComponent implements OnInit, OnDestroy {
             this.taskService.taskLog.subscribe((taskLog: TaskLog) => {
                 let logData = this.taskLogData[taskLog.taskId];
                 if (!logData) {
-                    logData = this.taskLogData[taskLog.taskId] = { lines: [], data: '' };
+                    logData = this.taskLogData[taskLog.taskId] = { lines: [], linesVisible: [] };
                 }
-                const chunkLines = taskLog.chunk.split('\n').filter(it => Boolean(it));
+                const chunkLines: LogLine[] = taskLog.chunk.split('\n').map(line => ({ line, err: taskLog.stderr }));
 
                 let newLines = [...logData.lines, ...chunkLines];
                 if (newLines.length > MAX_LINES) {
@@ -112,7 +117,7 @@ export class AppComponent implements OnInit, OnDestroy {
         }
         const logData = this.taskLogData[taskId];
         if (logData) {
-            logData.data = logData.lines.join('\n');
+            logData.linesVisible = logData.lines;
         }
     }
 }

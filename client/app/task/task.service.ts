@@ -1,6 +1,6 @@
 import { Injectable, EventEmitter } from '@angular/core';
 
-import { DOIT, Task, TaskLog, Event, EventType, AllTasksEvent, TaskEvent, TaskLogEvent, TaskActionEvent } from '../model';
+import { Task, TaskLog, Event, AllTasksEvent, TaskEvent, TaskLogEvent } from '../model';
 
 @Injectable()
 export class TaskService {
@@ -11,25 +11,20 @@ export class TaskService {
     task = new EventEmitter<Task>();
     taskLog = new EventEmitter<TaskLog>();
 
+    private on(event: Event, fun: (e: any) => void) {
+        this.socket.on(Event[event], fun);
+        return this;
+    }
+
     init() {
         this.socket = io.connect();
-        this.socket.on(DOIT, (e: Event<any>) => {
-            switch (e.type) {
-                case EventType.ALL_TASKS:
-                    this.allTasks.emit((e as AllTasksEvent).tasks);
-                    break;
-                case EventType.TASK:
-                    this.task.emit((e as TaskEvent).task);
-                    break;
-                case EventType.TASK_LOG:
-                    this.taskLog.emit((e as TaskLogEvent).taskLog);
-                    break;
-            }
-        });
+        this.on(Event.ALL_TASKS, (e: AllTasksEvent) => this.allTasks.emit(e.tasks))
+            .on(Event.TASK, (e: TaskEvent) => this.task.emit(e.task))
+            .on(Event.TASK_LOG, (e: TaskLogEvent) => this.taskLog.emit(e.taskLog));
     }
 
     startStop(task: Task) {
-        this.socket.emit(DOIT, { type: task.running ? EventType.TASK_ACTION_STOP : EventType.TASK_ACTION_START, taskId: task.id } as TaskActionEvent);
+        this.socket.emit(Event[Event.TASK_ACTION_START_STOP], { taskId: task.id });
     }
 
     destroy() {

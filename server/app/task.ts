@@ -119,9 +119,7 @@ export function load(): Observable<TaskMap> {
             try {
                 const defs: Task[] = JSON.parse(String(data));
                 ALL_TASKS = {};
-                defs.forEach((def, index) => {
-                    ALL_TASKS[index] = new Taskk({ ...def, id: index });
-                });
+                defs.forEach((def, index) => ALL_TASKS[index] = new Taskk({ ...def, id: index }));
                 subscriber.next(ALL_TASKS);
             } catch (err) {
                 console.error(`Error while parsing '${TASKS_FILE}': ${err}`);

@@ -19,7 +19,7 @@
                         <p> <code>{{commandAndArgs(selection)}}</code> in directory <code>{{selection.cwd}}</code> </p>
                         <span title="Pause Log" (click)="pauseLog()" [style.font-weight]="logPaused ? 'bold' : undefined" class="button">{{logPaused ? 'Resume Log' : 'Pause Log'}}</span>
                     </div>
-                    <pre>{{taskLogData[selection.id]?.data}}</pre>
+                    <pre class="doit-log"><ul><li [class.doit-log-error]="line.err" *ngFor="let line of taskLogData[selection.id]?.linesVisible">{{line.line}}</li></ul></pre>
                 </div>
             </div>
         </div>

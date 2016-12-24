@@ -8,6 +8,11 @@ error('this is a test error.');
 let count = 0;
 
 setInterval(() => {
-     log('ping', `${count}, ${new Date(Date.now())}\n  line2\n  line3`);
-     count++;
+    log(`${count}, ping, ${new Date(Date.now())}\n  line2\n  line3`);
+    count++;
 }, 300);
+
+setInterval(() => {
+    error(`${count}, test error, ${new Date(Date.now())}: ${String(new Error('kilroy was here'))}`);
+    count++;
+}, 3000);

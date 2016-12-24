@@ -1,5 +1,3 @@
-export const DOIT = 'doit';
-
 export interface Task {
     id: number;
     title: string;
@@ -15,28 +13,24 @@ export interface TaskLog {
     stderr?: boolean; // if true is stderr, else stdout
 }
 
-export enum EventType {
+export enum Event {
     TASK, ALL_TASKS, TASK_LOG, // outgoing
-    TASK_ACTION_START, TASK_ACTION_STOP, TASK_ACTION_GET_LOG // incoming
+    TASK_ACTION_START_STOP // incoming
 }
 
-export interface Event<T extends EventType> {
-    type: T;
-}
-
-export interface TaskEvent extends Event<EventType.TASK> {
+export interface TaskEvent {
     task: Task;
 }
 
-export interface AllTasksEvent extends Event<EventType.ALL_TASKS> {
+export interface AllTasksEvent {
     tasks: Task[];
 }
 
-export interface TaskLogEvent extends Event<EventType.TASK_LOG> {
+export interface TaskLogEvent {
     taskLog: TaskLog;
 }
 
-export interface TaskActionEvent extends Event<EventType.TASK_ACTION_START | EventType.TASK_ACTION_STOP | EventType.TASK_ACTION_GET_LOG> {
+export interface TaskActionStartStopEvent {
     taskId: number;
 }
 

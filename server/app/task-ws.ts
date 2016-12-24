@@ -1,4 +1,4 @@
-import { Event, EventType, TaskActionEvent, Task, AllTasksEvent, TaskEvent, TaskLogEvent, DOIT } from './model';
+import { Event, Task, TaskActionStartStopEvent } from './model';
 import * as task from './task';
 
 function mapTasks(taskMap: task.TaskMap): Task[] {
@@ -7,23 +7,21 @@ function mapTasks(taskMap: task.TaskMap): Task[] {
 
 export function taskSocket(io: SocketIO.Server) {
 
-    task.taskChanged$.subscribe(task => io.sockets.emit(DOIT, { type: EventType.TASK, task } as TaskEvent));
-    task.allTasksChanged$.subscribe(taskMap => io.sockets.emit(DOIT, { type: EventType.ALL_TASKS, tasks: mapTasks(taskMap) } as AllTasksEvent));
-    task.taskLogChanged$.subscribe(taskLog => io.sockets.emit(DOIT, { type: EventType.TASK_LOG, taskLog } as TaskLogEvent));
+    function broadcast(e: Event, obj: any) {
+        io.sockets.emit(Event[e], obj);
+    }
+
+    task.taskChanged$.subscribe(task => broadcast(Event.TASK, { task }));
+    task.allTasksChanged$.subscribe(taskMap => broadcast(Event.ALL_TASKS, { tasks: mapTasks(taskMap) }));
+    task.taskLogChanged$.subscribe(taskLog => broadcast(Event.TASK_LOG, { taskLog }));
 
     return socket => {
-        task.load().subscribe(taskMap => socket.emit(DOIT, { type: EventType.ALL_TASKS, tasks: mapTasks(taskMap) } as AllTasksEvent));
-
-        socket.on(DOIT, (e: Event<any>) => {
-            switch (e.type) {
-                case EventType.TASK_ACTION_START:
-                case EventType.TASK_ACTION_STOP: {
-                    const taskId = (e as TaskActionEvent).taskId;
-                    const t = task.get(taskId);
-                    t.startStop();
-                    break;
-                }
+        socket.on(Event[Event.TASK_ACTION_START_STOP], (e: TaskActionStartStopEvent) => {
+            const t = task.get(e.taskId);
+            if (t) {
+                t.startStop();
             }
         });
+        task.load().subscribe(taskMap => socket.emit(Event[Event.ALL_TASKS], { tasks: mapTasks(taskMap) }));
     };
 }

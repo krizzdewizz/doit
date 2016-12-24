@@ -58,6 +58,19 @@ $sidebar-width: 300px;
     margin-right: -$sidebar-width;
 }
 
+.doit-log {
+    ul {
+        list-style: none;
+        padding: 0;
+    }
+    padding: 5px;
+    margin: 0;
+}
+
+.doit-log-error {
+    color: red;
+}
+
 /* Sidebar Styles */
 
 .sidebar-nav {
