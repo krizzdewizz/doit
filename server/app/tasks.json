@@ -8,21 +8,30 @@
         "cwd": "D:\\data\\doit\\server\\app"
     },
     {
-        "title": "bison-ui - grunt build",
+        "title": "doit - client build",
         "command": "node",
         "args": [
-            "$NPM_LOCAL\\grunt-cli\\bin\\grunt",
+            "%NPM_LOCAL%\\grunt\\bin\\grunt",
             "build"
         ],
-        "cwd": "c:\\workspace\\meadows\\bison-ui"
+        "cwd": "d:\\data\\doit\\client"
     },
     {
-        "title": "lean-client - grunt watch:sass",
+        "title": "doit - server build",
         "command": "node",
         "args": [
-            "$NPM_LOCAL\\grunt-cli\\bin\\grunt",
+            "%NPM_LOCAL%\\grunt\\bin\\grunt",
+            "build"
+        ],
+        "cwd": "d:\\data\\doit\\server"
+    },
+    {
+        "title": "doit - watch:sass",
+        "command": "node",
+        "args": [
+            "%NPM_LOCAL%\\grunt\\bin\\grunt",
             "watch:sass"
         ],
-        "cwd": "C:\\workspace\\infra.base.git\\lean-client\\scripts"
+        "cwd": "d:\\data\\doit\\client"
     }
 ]

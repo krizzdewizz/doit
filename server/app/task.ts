@@ -8,7 +8,7 @@ import { Task, TaskLog } from './model';
 
 function replaceVars(s: string): string {
     const npmLocal = process.env.NPM_LOCAL;
-    return npmLocal ? s.replace(/\$NPM_LOCAL/g, npmLocal) : s;
+    return npmLocal ? s.replace(/\%NPM_LOCAL\%/g, npmLocal) : s;
 }
 
 const allTasksSource = new Subject<TaskMap>();
@@ -42,7 +42,7 @@ export class Taskk {
     startStop() {
         const task = this.task;
         if (this.process) {
-            taskLogSource.next({ taskId: task.id, chunk: `task '${task.title}' killed by user.` });
+            taskLogSource.next({ taskId: task.id, chunk: `doit: task '${task.title}' termination requested by user.` });
             this.process.kill();
             return;
         }
@@ -53,16 +53,16 @@ export class Taskk {
         p.on('exit', () => {
             this.process = undefined;
             taskSource.next(this.toJSON());
-            taskLogSource.next({ taskId: task.id, chunk: `task '${task.title}' exited.` });
+            taskLogSource.next({ taskId: task.id, chunk: `doit: task '${task.title}' exited.` });
         });
         p.on('error', err => {
             this.process = undefined;
             taskSource.next(this.toJSON());
-            taskLogSource.next({ taskId: task.id, chunk: `task '${task.title}' has reported an error: ${err}.` });
+            taskLogSource.next({ taskId: task.id, chunk: `doit: task '${task.title}' has reported an error: ${err}.` });
         });
         this.process = p;
         taskSource.next(this.toJSON());
-        taskLogSource.next({ taskId: task.id, chunk: `task '${task.title}' started.\n` });
+        taskLogSource.next({ taskId: task.id, chunk: `doit: task '${task.title}' started.\n` });
     }
 
     get running(): boolean {

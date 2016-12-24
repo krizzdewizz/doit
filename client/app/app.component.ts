@@ -65,9 +65,9 @@ export class AppComponent implements OnInit, OnDestroy {
                 if (!logData) {
                     logData = this.taskLogData[taskLog.taskId] = { lines: [], linesVisible: [] };
                 }
-                const chunkLines: LogLine[] = taskLog.chunk.split('\n').map(line => ({ line, err: taskLog.stderr }));
+                const chunkLine: LogLine = { line: taskLog.chunk, err: taskLog.stderr };
 
-                let newLines = [...logData.lines, ...chunkLines];
+                let newLines = [...logData.lines, chunkLine];
                 if (newLines.length > MAX_LINES) {
                     newLines = newLines.slice(newLines.length - MAX_LINES, newLines.length);
                 }

@@ -11,17 +11,13 @@
     </div>
 
     <div id="page-content-wrapper" *ngIf="selection">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-12">
-                    <h1>{{selection.title}}</h1>
-                    <div class="title">
-                        <p> <code>{{commandAndArgs(selection)}}</code> in directory <code>{{selection.cwd}}</code> </p>
-                        <span title="Pause Log" (click)="pauseLog()" [style.font-weight]="logPaused ? 'bold' : undefined" class="button">{{logPaused ? 'Resume Log' : 'Pause Log'}}</span>
-                    </div>
-                    <pre class="doit-log"><ul><li [class.doit-log-error]="line.err" *ngFor="let line of taskLogData[selection.id]?.linesVisible">{{line.line}}</li></ul></pre>
-                </div>
+        <div class="doit-detail">
+            <h1>{{selection.title}}</h1>
+            <div class="title">
+                <p> <code>{{commandAndArgs(selection)}}</code> in directory <code>{{selection.cwd}}</code> </p>
+                <span title="Pause Log" (click)="pauseLog()" [style.font-weight]="logPaused ? 'bold' : undefined" class="button">{{logPaused ? 'Resume Log' : 'Pause Log'}}</span>
             </div>
+            <pre class="doit-log"><ul><li [class.doit-log-error]="line.err" *ngFor="let line of taskLogData[selection.id]?.linesVisible">{{line.line}}</li></ul></pre>
         </div>
     </div>
 </div>

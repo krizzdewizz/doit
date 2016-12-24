@@ -1,12 +1,16 @@
 $sidebar-width: 300px;
 
- body {
-    overflow-x: hidden;
- }
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+}
 
 #wrapper {
   padding-left: $sidebar-width;
-  transition: all 0.5s ease;
+  height: 100%;
 }
 
 #wrapper.toggled {
@@ -37,8 +41,9 @@ $sidebar-width: 300px;
 
 #page-content-wrapper {
     width: 100%;
+    height: 100%;
     padding: 20px;
-    position: relative;
+
     pre {
         min-height: 100px;
     }
@@ -58,13 +63,20 @@ $sidebar-width: 300px;
     margin-right: -$sidebar-width;
 }
 
+.doit-detail {
+    height: 100%;
+    padding-right: 20px;
+    padding-left: 20px;
+}
+
 .doit-log {
+    padding: 5px;
+    margin: 0;
+    height: 82%;
     ul {
         list-style: none;
         padding: 0;
     }
-    padding: 5px;
-    margin: 0;
 }
 
 .doit-log-error {
