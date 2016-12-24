@@ -12,18 +12,13 @@ export class TaskService {
     taskLog = new EventEmitter<TaskLog>();
     config = new EventEmitter<Config>();
 
-    private on(event: Event, fun: (e: any) => void) {
-        this.socket.on(Event[event], fun);
-        return this;
-    }
-
     init() {
+        const on = (event: Event, fun: (e: any) => void) => this.socket.on(Event[event], fun);
         this.socket = io.connect();
-        this.on(Event.ALL_TASKS, (e: AllTasksEvent) => this.allTasks.emit(e.tasks))
-            .on(Event.TASK, (e: TaskEvent) => this.task.emit(e.task))
-            .on(Event.TASK_LOG, (e: TaskLogEvent) => this.taskLog.emit(e.taskLog))
-            .on(Event.CONFIG, (e: ConfigEvent) => this.config.emit(e.config))
-            ;
+        on(Event.ALL_TASKS, (e: AllTasksEvent) => this.allTasks.emit(e.tasks));
+        on(Event.TASK, (e: TaskEvent) => this.task.emit(e.task));
+        on(Event.TASK_LOG, (e: TaskLogEvent) => this.taskLog.emit(e.taskLog));
+        on(Event.CONFIG, (e: ConfigEvent) => this.config.emit(e.config));
     }
 
     startStop(task: Task) {

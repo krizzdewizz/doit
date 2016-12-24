@@ -90,12 +90,10 @@ export function get(taskId: number): Taskk {
 }
 
 export function setupWatcher() {
-    let lastMTime;
     fs.watch(TASKS_FILE, e => {
         if (e === 'change') {
-            const mtime = Number(fs.lstatSync(TASKS_FILE).mtime);
-            if (!lastMTime || (mtime - lastMTime) > 100) {
-                lastMTime = mtime;
+            const stat = fs.lstatSync(TASKS_FILE);
+            if (stat.size > 0) {
                 if (ALL_TASKS) {
                     ALL_TASKS
                         .filter(task => task.running)
