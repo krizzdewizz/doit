@@ -37,7 +37,8 @@
                 "${grunt}",
                 "watch:sass"
             ],
-            "cwd": "${doit}client"
+            "cwd": "${doit}client",
+            "problemPattern": "^>> (Error:.*)$"
         }
     ]
 }

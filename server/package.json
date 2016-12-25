@@ -15,6 +15,8 @@
     "grunt-ts": "*",
     "grunt-tslint": "*",
     "load-grunt-tasks": "*",
+    "node-notifier": "*",
+    "openurl": "*",
     "rxjs": "*",
     "socket.io": "*",
     "tslint": "*",

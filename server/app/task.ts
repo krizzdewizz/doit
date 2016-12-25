@@ -6,6 +6,7 @@ import { Observable, Subscriber, Subject } from 'rxjs/Rx';
 
 import { Task, DoIt, TaskLog } from './model';
 import { Varss } from './vars';
+import { notify } from './notify';
 
 const allTasksSource = new Subject<Taskk[]>();
 export const allTasksChanged$ = allTasksSource.asObservable();
@@ -18,12 +19,14 @@ export const taskLogChanged$ = taskLogSource.asObservable();
 
 class ToTaskLogChanged extends stream.Writable {
 
-    constructor(private taskId: number, private stderr: boolean) {
+    constructor(private taskId: number, private stderr: boolean, private onChunk: (chunk: string) => void) {
         super();
     }
 
     _write(chunk, _encoding, done) {
-        taskLogSource.next({ taskId: this.taskId, stderr: this.stderr, chunk: String(chunk) });
+        const c = String(chunk);
+        taskLogSource.next({ taskId: this.taskId, stderr: this.stderr, chunk: c });
+        this.onChunk(c);
         done();
     }
 }
@@ -37,14 +40,23 @@ export class Taskk {
             command: vars.replace(task.command),
             args: (task.args || []).map(it => vars.replace(it)),
             cwd: vars.replace(task.cwd),
-            running: false
+            problemPattern: task.problemPattern
         });
     }
 
     private process: child_process.ChildProcess;
+    private problemRegExp: RegExp;
 
     constructor(public task: Task) {
+        this.problemRegExp = task.problemPattern ? new RegExp(task.problemPattern, 'm') : undefined;
     }
+
+    private notifyProblem = (chunk: string) => {
+        const match = chunk.match(this.problemRegExp);
+        if (match) {
+            notify(this.task.id, this.task.title, match[1] || match[0]);
+        }
+    };
 
     startStop() {
         const task = this.task;
@@ -53,10 +65,11 @@ export class Taskk {
             this.process.kill();
             return;
         }
+        const notifyProblem = this.problemRegExp ? this.notifyProblem : () => { /* nothing */ };
         const p = child_process.spawn(task.command, task.args, { cwd: task.cwd });
         p.stdout.setEncoding('utf8');
-        p.stdout.pipe(new ToTaskLogChanged(task.id, false));
-        p.stderr.pipe(new ToTaskLogChanged(task.id, true));
+        p.stdout.pipe(new ToTaskLogChanged(task.id, false, notifyProblem));
+        p.stderr.pipe(new ToTaskLogChanged(task.id, true, notifyProblem));
         p.on('exit', () => {
             this.process = undefined;
             taskSource.next(this.toJSON());

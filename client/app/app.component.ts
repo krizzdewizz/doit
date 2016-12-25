@@ -43,7 +43,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.subscriptions = [
             this.taskService.allTasks.subscribe((tasks: Task[]) => {
                 this.tasks = tasks;
-                this.selection = tasks[0];
+                this.initSelection();
             }),
 
             this.taskService.task.subscribe((task: Task) => {
@@ -82,6 +82,18 @@ export class AppComponent implements OnInit, OnDestroy {
 
         ];
         this.taskService.init();
+    }
+
+    private initSelection() {
+        const hash = window.location.hash;
+        if (hash.startsWith('#') && hash.length > 1) {
+            const taskId = Number(hash.substring(1));
+            this.selection = this.tasks.find(it => it.id === taskId);
+        }
+
+        if (!this.selection) {
+            this.selection = this.tasks[0];
+        }
     }
 
     ngOnDestroy() {

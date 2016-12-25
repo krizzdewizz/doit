@@ -5,12 +5,12 @@ import * as socketIo from 'socket.io';
 
 import { taskSocket } from './task-ws';
 import { setupWatcher } from './task';
+import { PORT } from './env';
 
 setupWatcher();
 
 const bodyParser = require('body-parser');
 
-const PORT = 8090;
 const prod = Boolean(process.argv.find(it => it === '-p'));
 
 const CLIENT_ROOT = '../../client' + (prod ? '/.dist' : '');

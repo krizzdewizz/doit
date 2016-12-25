@@ -11,9 +11,10 @@ export interface Task {
     id: number;
     title: string;
     command: string;
-    args: string[];
-    cwd: string;
-    running: boolean;
+    args?: string[];
+    cwd?: string;
+    problemPattern?: string;
+    running?: boolean;
 }
 
 export interface TaskLog {
