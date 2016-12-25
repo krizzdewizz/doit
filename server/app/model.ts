@@ -14,6 +14,7 @@ export interface Task {
     args?: string[];
     cwd?: string;
     problemPattern?: string;
+    autoStart?: boolean;
     running?: boolean;
 }
 

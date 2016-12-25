@@ -38,7 +38,8 @@
                 "watch:sass"
             ],
             "cwd": "${doit}client",
-            "problemPattern": "^>> (Error:.*)$"
+            "problemPattern": "^>> (Error:.*)$",
+            "autoStart": true
         }
     ]
 }

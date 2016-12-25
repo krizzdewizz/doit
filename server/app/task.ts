@@ -17,6 +17,12 @@ export const taskChanged$ = taskSource.asObservable();
 const taskLogSource = new Subject<TaskLog>();
 export const taskLogChanged$ = taskLogSource.asObservable();
 
+let allTasks: Taskk[];
+
+function autoStart() {
+    allTasks.filter(it => it.task.autoStart).forEach(it => it.startStop());
+}
+
 class ToTaskLogChanged extends stream.Writable {
 
     constructor(private taskId: number, private logType: LogType, private onChunk: (chunk: string) => void) {
@@ -40,6 +46,7 @@ export class Taskk {
             command: vars.replace(task.command),
             args: (task.args || []).map(it => vars.replace(it)),
             cwd: vars.replace(task.cwd),
+            autoStart: task.autoStart,
             problemPattern: task.problemPattern
         });
     }
@@ -100,10 +107,8 @@ export class Taskk {
 
 export const TASKS_FILE = path.join(__dirname, 'tasks.json');
 
-let ALL_TASKS: Taskk[];
-
 export function get(taskId: number): Taskk {
-    return ALL_TASKS.find(it => it.task.id === taskId);
+    return allTasks.find(it => it.task.id === taskId);
 }
 
 export function setupWatcher() {
@@ -111,21 +116,19 @@ export function setupWatcher() {
         if (e === 'change') {
             const stat = fs.lstatSync(TASKS_FILE);
             if (stat.size > 0) {
-                if (ALL_TASKS) {
-                    ALL_TASKS
-                        .filter(task => task.running)
-                        .forEach(task => task.startStop());
-                    ALL_TASKS = undefined;
+                if (allTasks) {
+                    allTasks.filter(task => task.running).forEach(task => task.startStop());
+                    allTasks = undefined;
                 }
-                load().subscribe(() => allTasksSource.next(ALL_TASKS));
+                load().subscribe(() => allTasksSource.next(allTasks));
             }
         }
     });
 }
 
 export function load(): Observable<Taskk[]> {
-    if (ALL_TASKS) {
-        return Observable.of(ALL_TASKS);
+    if (allTasks) {
+        return Observable.of(allTasks);
     }
     return Observable.create((subscriber: Subscriber<Taskk[]>) => {
         fs.readFile(TASKS_FILE, (err, content) => {
@@ -136,8 +139,9 @@ export function load(): Observable<Taskk[]> {
             try {
                 const doit: DoIt = JSON.parse(String(content));
                 const vars = new Varss(doit.vars);
-                ALL_TASKS = doit.tasks.map((task, index) => Taskk.create(index, task, vars));
-                subscriber.next(ALL_TASKS);
+                allTasks = doit.tasks.map((task, index) => Taskk.create(index, task, vars));
+                autoStart();
+                subscriber.next(allTasks);
             } catch (err) {
                 console.error(`Error while parsing '${TASKS_FILE}': ${err}`);
             }
