@@ -25,6 +25,10 @@ export class TaskService {
         this.socket.emit(Event[Event.TASK_ACTION_START_STOP], { taskId: task.id });
     }
 
+    openConfig() {
+        this.socket.emit(Event[Event.OPEN_CONFIG]);
+    }
+
     destroy() {
         this.socket.close();
         this.socket = undefined;

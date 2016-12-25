@@ -1,7 +1,7 @@
 <div id="wrapper">
 
     <div id="sidebar-wrapper">
-        <h2><a [href]="configFile">doit</a></h2>
+        <h2><a href="#" (click)="openConfig()">doit</a></h2>
         <ul class="sidebar-nav">
             <li *ngFor="let task of tasks" (click)="selection = task" [class.active]="task === selection">
                 <span>{{task.title}}</span>

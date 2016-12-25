@@ -1,5 +1,4 @@
 import { Component, OnInit, OnDestroy, ElementRef } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
 
 import { TaskService } from './task/task.service';
 import { Task, TaskLog, Config, LogType } from './model';
@@ -37,8 +36,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     taskLogData: TaskLogData = {};
 
-    constructor(private elRef: ElementRef, private taskService: TaskService, private sanitizer: DomSanitizer) {
-
+    constructor(private elRef: ElementRef, private taskService: TaskService) {
     }
 
     ngOnInit() {
@@ -136,10 +134,8 @@ export class AppComponent implements OnInit, OnDestroy {
         }
     }
 
-    get configFile() {
-        if (!this.config) {
-            return undefined;
-        }
-        return this.sanitizer.bypassSecurityTrustUrl(`doit-open:${this.config.path}`);
+    openConfig() {
+        this.taskService.openConfig();
+        return false;
     }
 }

@@ -34,7 +34,7 @@ export interface Config {
 
 export enum Event {
     TASK, ALL_TASKS, TASK_LOG, CONFIG, // outgoing
-    TASK_ACTION_START_STOP // incoming
+    TASK_ACTION_START_STOP, OPEN_CONFIG // incoming
 }
 
 export interface TaskEvent {
@@ -56,3 +56,4 @@ export interface TaskActionStartStopEvent {
 export interface ConfigEvent {
     config: Config;
 }
+
