@@ -140,8 +140,8 @@ export function load(): Observable<Taskk[]> {
                 const doit: DoIt = JSON.parse(String(content));
                 const vars = new Varss(doit.vars);
                 allTasks = doit.tasks.map((task, index) => Taskk.create(index, task, vars));
-                autoStart();
                 subscriber.next(allTasks);
+                autoStart();
             } catch (err) {
                 console.error(`Error while parsing '${TASKS_FILE}': ${err}`);
             }
