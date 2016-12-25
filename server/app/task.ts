@@ -4,7 +4,7 @@ import * as child_process from 'child_process';
 import * as stream from 'stream';
 import { Observable, Subscriber, Subject } from 'rxjs/Rx';
 
-import { Task, DoIt, TaskLog } from './model';
+import { Task, DoIt, TaskLog, LogType } from './model';
 import { Varss } from './vars';
 import { notify } from './notify';
 
@@ -19,13 +19,13 @@ export const taskLogChanged$ = taskLogSource.asObservable();
 
 class ToTaskLogChanged extends stream.Writable {
 
-    constructor(private taskId: number, private stderr: boolean, private onChunk: (chunk: string) => void) {
+    constructor(private taskId: number, private logType: LogType, private onChunk: (chunk: string) => void) {
         super();
     }
 
     _write(chunk, _encoding, done) {
         const c = String(chunk);
-        taskLogSource.next({ taskId: this.taskId, stderr: this.stderr, chunk: c });
+        taskLogSource.next({ taskId: this.taskId, type: this.logType, chunk: c });
         this.onChunk(c);
         done();
     }
@@ -56,33 +56,37 @@ export class Taskk {
         if (match) {
             notify(this.task.id, this.task.title, match[1] || match[0]);
         }
-    };
+    }
 
     startStop() {
         const task = this.task;
         if (this.process) {
-            taskLogSource.next({ taskId: task.id, chunk: `doit: task '${task.title}' termination requested by user.` });
+            taskLogSource.next({ taskId: task.id, type: LogType.DOIT, chunk: `task '${task.title}' termination requested by user.` });
             this.process.kill();
             return;
         }
         const notifyProblem = this.problemRegExp ? this.notifyProblem : () => { /* nothing */ };
         const p = child_process.spawn(task.command, task.args, { cwd: task.cwd });
         p.stdout.setEncoding('utf8');
-        p.stdout.pipe(new ToTaskLogChanged(task.id, false, notifyProblem));
-        p.stderr.pipe(new ToTaskLogChanged(task.id, true, notifyProblem));
-        p.on('exit', () => {
+        p.stdout.pipe(new ToTaskLogChanged(task.id, LogType.STDOUT, notifyProblem));
+        p.stderr.pipe(new ToTaskLogChanged(task.id, LogType.STDERR, notifyProblem));
+        p.on('exit', code => {
+            const withError = typeof code !== 'number' || code === 0 ? '' : ` with error (${code})`;
             this.process = undefined;
             taskSource.next(this.toJSON());
-            taskLogSource.next({ taskId: task.id, chunk: `doit: task '${task.title}' exited.` });
+            taskLogSource.next({ taskId: task.id, type: LogType.DOIT, chunk: `task '${task.title}' exited${withError}.` });
+            if (withError) {
+                notify(this.task.id, this.task.title, `Task exited${withError}.`);
+            }
         });
         p.on('error', err => {
             this.process = undefined;
             taskSource.next(this.toJSON());
-            taskLogSource.next({ taskId: task.id, chunk: `doit: task '${task.title}' has reported an error: ${err}.` });
+            taskLogSource.next({ taskId: task.id, type: LogType.DOIT, chunk: `task '${task.title}' has reported an error: ${err}.` });
         });
         this.process = p;
         taskSource.next(this.toJSON());
-        taskLogSource.next({ taskId: task.id, chunk: `doit: task '${task.title}' started.\n` });
+        taskLogSource.next({ taskId: task.id, type: LogType.DOIT, chunk: `task '${task.title}' started.\n` });
     }
 
     get running(): boolean {

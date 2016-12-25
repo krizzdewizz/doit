@@ -17,10 +17,14 @@ export interface Task {
     running?: boolean;
 }
 
+export enum LogType {
+    STDOUT, STDERR, DOIT
+}
+
 export interface TaskLog {
     taskId: number;
     chunk: string;
-    stderr?: boolean; // if true is stderr, else stdout
+    type: LogType;
 }
 
 export interface Config {

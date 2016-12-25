@@ -2,13 +2,13 @@ import { Component, OnInit, OnDestroy, ElementRef } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 
 import { TaskService } from './task/task.service';
-import { Task, TaskLog, Config } from './model';
+import { Task, TaskLog, Config, LogType } from './model';
 
 const MAX_LINES = 30;
 
 interface LogLine {
     line: string;
-    err: boolean;
+    type: LogType;
 }
 
 interface LogData {
@@ -26,6 +26,8 @@ interface TaskLogData {
     templateUrl: './app.component.html',
 })
 export class AppComponent implements OnInit, OnDestroy {
+
+    LogType = LogType;
 
     tasks: Task[];
     selection: Task;
@@ -67,7 +69,7 @@ export class AppComponent implements OnInit, OnDestroy {
                 if (!logData) {
                     logData = this.taskLogData[taskLog.taskId] = { lines: [], linesVisible: [] };
                 }
-                const chunkLine: LogLine = { line: taskLog.chunk, err: taskLog.stderr };
+                const chunkLine: LogLine = { line: taskLog.chunk, type: taskLog.type };
 
                 let newLines = [...logData.lines, chunkLine];
                 if (newLines.length > MAX_LINES) {
@@ -99,11 +101,6 @@ export class AppComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.taskService.destroy();
         this.subscriptions.forEach(it => it.unsubscribe());
-    }
-
-    commandAndArgs(task: Task): string {
-        const args = task.args.join(' ');
-        return `${task.command} ${args}`;
     }
 
     startStopClass(task: Task) {
