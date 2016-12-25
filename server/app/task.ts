@@ -46,8 +46,8 @@ export class Taskk {
             command: vars.replace(task.command),
             args: (task.args || []).map(it => vars.replace(it)),
             cwd: vars.replace(task.cwd),
-            autoStart: task.autoStart,
-            problemPattern: task.problemPattern
+            problemPattern: vars.replace(task.problemPattern),
+            autoStart: task.autoStart
         });
     }
 
@@ -93,7 +93,7 @@ export class Taskk {
         });
         this.process = p;
         taskSource.next(this.toJSON());
-        taskLogSource.next({ taskId: task.id, type: LogType.DOIT, chunk: `task '${task.title}' started.\n` });
+        taskLogSource.next({ taskId: task.id, type: LogType.DOIT, chunk: `task '${task.title}' started.` });
     }
 
     get running(): boolean {

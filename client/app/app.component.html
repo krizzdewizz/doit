@@ -14,7 +14,7 @@
         <div class="doit-detail">
             <h1>{{selection.title}}</h1>
             <div class="pause-log">
-                <span title="Pause Log" (click)="pauseLog()" class="glyphicon button" [ngClass]="{'glyphicon-pause': !logPaused, 'glyphicon-play':logPaused}"></span>
+                <span [title]="logPaused ? 'Resume Log' : 'Pause Log'" (click)="pauseLog()" class="glyphicon button" [ngClass]="{'glyphicon-pause': !logPaused, 'glyphicon-play':logPaused}"></span>
             </div>
             <pre class="doit-log"><ul><li [ngClass]="{'doit-log-error': line.type === LogType.STDERR, 'doit-log-doit' : line.type === LogType.DOIT}" *ngFor="let line of taskLogData[selection.id]?.linesVisible">{{line.line}}</li></ul></pre>
         </div>
