@@ -72,7 +72,7 @@ export class Taskk {
                 return match ? LogType.STDERR : def;
             }
             return def;
-        }
+        };
     }
 
     startStop() {
