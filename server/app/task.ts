@@ -25,13 +25,13 @@ function autoStart() {
 
 class ToTaskLogChanged extends stream.Writable {
 
-    constructor(private taskId: number, private logType: LogType, private onChunk: (chunk: string) => void) {
+    constructor(private taskId: number, private logType: (chunk: string) => LogType, private onChunk: (chunk: string) => void) {
         super();
     }
 
     _write(chunk, _encoding, done) {
         const c = String(chunk);
-        taskLogSource.next({ taskId: this.taskId, type: this.logType, chunk: c });
+        taskLogSource.next({ taskId: this.taskId, type: this.logType(c), chunk: c });
         this.onChunk(c);
         done();
     }
@@ -65,6 +65,16 @@ export class Taskk {
         }
     }
 
+    private logType(def: LogType): (chunk: string) => LogType {
+        return (chunk: string) => {
+            if (this.problemRegExp) {
+                const match = chunk.match(this.problemRegExp);
+                return match ? LogType.STDERR : def;
+            }
+            return def;
+        }
+    }
+
     startStop() {
         const task = this.task;
         if (this.process) {
@@ -75,8 +85,9 @@ export class Taskk {
         const notifyProblem = this.problemRegExp ? this.notifyProblem : () => { /* nothing */ };
         const p = child_process.spawn(task.command, task.args, { cwd: task.cwd });
         p.stdout.setEncoding('utf8');
-        p.stdout.pipe(new ToTaskLogChanged(task.id, LogType.STDOUT, notifyProblem));
-        p.stderr.pipe(new ToTaskLogChanged(task.id, LogType.STDERR, notifyProblem));
+
+        p.stdout.pipe(new ToTaskLogChanged(task.id, this.logType(LogType.STDOUT), notifyProblem));
+        p.stderr.pipe(new ToTaskLogChanged(task.id, this.logType(LogType.STDERR), notifyProblem));
         p.on('exit', code => {
             const withError = typeof code !== 'number' || code === 0 ? '' : ` with error (${code})`;
             this.process = undefined;
