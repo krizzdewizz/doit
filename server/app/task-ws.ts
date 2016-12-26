@@ -1,5 +1,4 @@
 import { Event, Task, TaskActionStartStopEvent } from './model';
-import * as openurl from 'openurl';
 
 import * as task from './task';
 
@@ -25,9 +24,8 @@ export function taskSocket(io: SocketIO.Server): (socket: SocketIO.Socket) => vo
                     t.startStop();
                 }
             })
-            .on(Event[Event.OPEN_CONFIG], () => openurl.open(task.TASKS_FILE))
+            .on(Event[Event.OPEN_CONFIG], () => task.openConfig())
             ;
-        task.load().subscribe(taskMap => socket.emit(Event[Event.ALL_TASKS], { tasks: mapTasks(taskMap) }));
-        socket.emit(Event[Event.CONFIG], { config: { path: task.TASKS_FILE } });
+        socket.emit(Event[Event.ALL_TASKS], { tasks: mapTasks(task.load(false)) });
     };
 }

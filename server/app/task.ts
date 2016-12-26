@@ -2,11 +2,13 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as child_process from 'child_process';
 import * as stream from 'stream';
-import { Observable, Subscriber, Subject } from 'rxjs/Rx';
+import { Subject } from 'rxjs/Rx';
+import * as require_reload from 'require-reload';
 
 import { Task, DoIt, TaskLog, LogType } from './model';
-import { Varss } from './vars';
 import { notify } from './notify';
+
+const reload = require_reload(require);
 
 const allTasksSource = new Subject<Taskk[]>();
 export const allTasksChanged$ = allTasksSource.asObservable();
@@ -18,8 +20,9 @@ const taskLogSource = new Subject<TaskLog>();
 export const taskLogChanged$ = taskLogSource.asObservable();
 
 let allTasks: Taskk[];
+let editor: string;
 
-function autoStart() {
+function autoStartTasks() {
     allTasks.filter(it => it.task.autoStart).forEach(it => it.startStop());
 }
 
@@ -38,18 +41,6 @@ class ToTaskLogChanged extends stream.Writable {
 }
 
 export class Taskk {
-
-    static create(id: number, task: Task, vars: Varss): Taskk {
-        return new Taskk({
-            id,
-            title: vars.replace(task.title),
-            command: vars.replace(task.command),
-            args: (task.args || []).map(it => vars.replace(it)),
-            cwd: vars.replace(task.cwd),
-            problemPattern: vars.replace(task.problemPattern),
-            autoStart: task.autoStart
-        });
-    }
 
     private process: child_process.ChildProcess;
     private problemRegExp: RegExp;
@@ -116,7 +107,7 @@ export class Taskk {
     }
 }
 
-export const TASKS_FILE = path.join(__dirname, 'tasks.json');
+export const TASKS_FILE = path.join(__dirname, '../tasks.js');
 
 export function get(taskId: number): Taskk {
     return allTasks.find(it => it.task.id === taskId);
@@ -131,31 +122,29 @@ export function setupWatcher() {
                     allTasks.filter(task => task.running).forEach(task => task.startStop());
                     allTasks = undefined;
                 }
-                load().subscribe(() => allTasksSource.next(allTasks));
+                allTasksSource.next(load(true));
             }
         }
     });
 }
 
-export function load(): Observable<Taskk[]> {
+export function load(autoStart: boolean): Taskk[] {
     if (allTasks) {
-        return Observable.of(allTasks);
+        return allTasks;
     }
-    return Observable.create((subscriber: Subscriber<Taskk[]>) => {
-        fs.readFile(TASKS_FILE, (err, content) => {
-            if (err) {
-                subscriber.error(err);
-                return;
-            }
-            try {
-                const doit: DoIt = JSON.parse(String(content));
-                const vars = new Varss(doit.vars);
-                allTasks = doit.tasks.map((task, index) => Taskk.create(index, task, vars));
-                subscriber.next(allTasks);
-                autoStart();
-            } catch (err) {
-                console.error(`Error while parsing '${TASKS_FILE}': ${err}`);
-            }
-        });
-    });
+    try {
+        const doit: DoIt = reload(TASKS_FILE);
+        editor = doit.editor;
+        allTasks = doit.tasks.map((task, index) => new Taskk({ id: index, ...task }));
+        if (autoStart) {
+            autoStartTasks();
+        }
+        return allTasks;
+    } catch (err) {
+        console.error(`Error while parsing '${TASKS_FILE}': ${err}`);
+    }
+}
+
+export function openConfig() {
+    child_process.exec(`${editor || 'notepad'} "${TASKS_FILE}"`);
 }

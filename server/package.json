@@ -17,6 +17,7 @@
     "load-grunt-tasks": "*",
     "node-notifier": "*",
     "openurl": "*",
+    "require-reload": "*",
     "rxjs": "*",
     "socket.io": "*",
     "tslint": "*",

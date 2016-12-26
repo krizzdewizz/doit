@@ -4,10 +4,8 @@ import * as http from 'http';
 import * as socketIo from 'socket.io';
 
 import { taskSocket } from './task-ws';
-import { setupWatcher } from './task';
+import { setupWatcher, load } from './task';
 import { PORT } from './env';
-
-setupWatcher();
 
 const bodyParser = require('body-parser');
 
@@ -40,6 +38,9 @@ const server = http.createServer(app);
 const io = socketIo.listen(server);
 
 io.sockets.on('connection', taskSocket(io));
+
+setupWatcher();
+load(true);
 
 server.listen(PORT, () => {
     const log = console.log;

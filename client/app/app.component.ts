@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ElementRef } from '@angular/core';
 
 import { TaskService } from './task/task.service';
-import { Task, TaskLog, Config, LogType } from './model';
+import { Task, TaskLog, LogType } from './model';
 
 const MAX_LINES = 30;
 
@@ -30,7 +30,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     tasks: Task[];
     selection: Task;
-    config: Config;
+
     private logPaused: boolean;
     private subscriptions: any[];
 
@@ -77,14 +77,12 @@ export class AppComponent implements OnInit, OnDestroy {
                 logData.lines = newLines;
                 this.updateLogData(taskLog.taskId);
             }),
-
-            this.taskService.config.subscribe((config: Config) => this.config = config)
-
         ];
         this.taskService.init();
     }
 
     private initSelection() {
+        this.selection = undefined;
         const hash = window.location.hash;
         if (hash.startsWith('#') && hash.length > 1) {
             const taskId = Number(hash.substring(1));

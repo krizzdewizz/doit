@@ -1,10 +1,6 @@
-export interface Vars {
-    [name: string]: string;
-}
-
 export interface DoIt {
+    editor?: string;
     tasks: Task[];
-    vars: Vars;
 }
 
 export interface Task {
@@ -33,7 +29,7 @@ export interface Config {
 }
 
 export enum Event {
-    TASK, ALL_TASKS, TASK_LOG, CONFIG, // outgoing
+    TASK, ALL_TASKS, TASK_LOG, // outgoing
     TASK_ACTION_START_STOP, OPEN_CONFIG // incoming
 }
 
@@ -53,6 +49,3 @@ export interface TaskActionStartStopEvent {
     taskId: number;
 }
 
-export interface ConfigEvent {
-    config: Config;
-}

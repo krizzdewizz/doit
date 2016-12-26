@@ -1,6 +1,6 @@
 import { Injectable, EventEmitter } from '@angular/core';
 
-import { Task, TaskLog, Event, AllTasksEvent, TaskEvent, TaskLogEvent, Config, ConfigEvent } from '../model';
+import { Task, TaskLog, Event, AllTasksEvent, TaskEvent, TaskLogEvent } from '../model';
 
 @Injectable()
 export class TaskService {
@@ -10,7 +10,6 @@ export class TaskService {
     allTasks = new EventEmitter<Task[]>();
     task = new EventEmitter<Task>();
     taskLog = new EventEmitter<TaskLog>();
-    config = new EventEmitter<Config>();
 
     init() {
         const on = (event: Event, fun: (e: any) => void) => this.socket.on(Event[event], fun);
@@ -18,7 +17,6 @@ export class TaskService {
         on(Event.ALL_TASKS, (e: AllTasksEvent) => this.allTasks.emit(e.tasks));
         on(Event.TASK, (e: TaskEvent) => this.task.emit(e.task));
         on(Event.TASK_LOG, (e: TaskLogEvent) => this.taskLog.emit(e.taskLog));
-        on(Event.CONFIG, (e: ConfigEvent) => this.config.emit(e.config));
     }
 
     startStop(task: Task) {
